@@ -35,4 +35,7 @@ jobs:
         with:
           path: rss_state.db
           key: rss-db-cache
+          
+      - name: Say hello
+        run: echo "Hello, Actions! The time is $(date -u)"
 
