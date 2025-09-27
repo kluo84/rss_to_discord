@@ -1,8 +1,9 @@
-name: RSS to Discord
+name: RSS to Discord (8am America/Chicago)
 
 on:
   schedule:
-    - cron: "* */2 * * *"   # every 2 hours
+    - cron: "0 13 * * *"   # 08:00 CDT (Mar–Nov)
+    - cron: "0 14 * * *"   # 08:00 CST (Nov–Mar)
   workflow_dispatch:        # manual run option
 
 jobs:
@@ -22,17 +23,32 @@ jobs:
         with:
           python-version: '3.12'
 
-      - run: |
+      - name: Install deps
+        run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - run: python rss_to_discord.py
+      # Gate: only run when it's 08:00 in America/Chicago
+      - name: Time gate (America/Chicago must be 08h)
+        id: gate
+        run: |
+          export TZ=America/Chicago
+          NOW_HOUR="$(date +%H)"
+          echo "Local hour: $NOW_HOUR"
+          if [ "$NOW_HOUR" = "08" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run script
+        if: steps.gate.outputs.run == 'true'
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python rss_to_discord.py
 
       - name: Save DB cache
         uses: actions/cache/save@v4
         with:
           path: rss_state.db
           key: rss-db-cache
-
