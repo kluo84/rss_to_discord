@@ -31,7 +31,7 @@ RSS_FEEDS = [
 ]
 
 GITHUB_RELEASE_ATOMS = [
-    "https://github.com/rapid7/metasploit-framework/releases.atom",
+    #"https://github.com/rapid7/metasploit-framework/releases.atom",
 ]
 
 DB_FILE = "rss_state.db"
